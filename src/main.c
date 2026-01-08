@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "pico/stdlib.h"
 #include "demos/display.h"
 #include "demos/joystick.h"
@@ -7,6 +8,7 @@
 #include "demos/i2c_scan.h"
 #include "demos/motion.h"
 #include "demos/Abgabe_09.h"
+#include "game/game.h"
 
 int main()
 {
@@ -19,6 +21,11 @@ int main()
     // motion_demo_execute();
     // distance_demo_execute();
     printf("Hello, Pico2-Edu!\n");
-    abgabe_09_execute();
+
+    // abgabe_09_execute();
+
+    Game *game = malloc(sizeof(Game));
+    game_run(game);
+
     return 0;
 }
