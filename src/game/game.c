@@ -125,8 +125,10 @@ void game_run(Game *game)
         }
 
         char location_str[10];
-        sprintf(location_str, "X: %.3f Y: %.3f", game->player.x / 1.0f, game->player.y / 1.0f);
+        sprintf(location_str, "X: %.3f", game->player.x / 1.0f);
         st7735_draw_string(10, 20, location_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
+        sprintf(location_str, "Y: %.3f", game->player.y / 1.0f);
+        st7735_draw_string(10, 30, location_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
 
         time++;
         sleep_ms(TICK_DURATION);
