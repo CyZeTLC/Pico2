@@ -24,7 +24,6 @@ void init_display(void)
 
 void display_demo_execute(void)
 {
-
     init_display();
     st7735_begin();
 

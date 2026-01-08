@@ -47,6 +47,9 @@ src/demos/dht11.c
 src/demos/i2c_scan.c
 src/demos/motion.c
 src/demos/Abgabe_09.c
+src/game/player/player.c
+src/game/game.c
+src/game/level/level.c
 )
 
 pico_set_program_name(pico2-edu "pico2-edu")
