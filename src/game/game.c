@@ -47,8 +47,8 @@ bool wall_at(int x, int y)
 
 void move_player(Player *player, float x_delta, float y_delta)
 {
-    int next_x = player->x - (int)(x_delta * 5);
-    int next_y = player->y + (int)(y_delta * 50);
+    int next_x = player->x - (int)(x_delta * MOVEMENT_SPEED);
+    int next_y = player->y + (int)(y_delta * MOVEMENT_SPEED * 10);
 
     if (next_x < 0 || next_x > 127 || next_y < 0 || next_y > 159)
     {

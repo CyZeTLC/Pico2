@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 #define TICK_DURATION 50
+#define MOVEMENT_SPEED 5.0f
 
 #include "player/player.h"
 #include "level/level.h"
