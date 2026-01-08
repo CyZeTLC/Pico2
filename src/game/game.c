@@ -36,7 +36,13 @@ void display_ui()
 
 bool wall_at(int x, int y)
 {
-    return false;
+    uint16_t color;
+
+    if (color == st7735_rgb(255, 255, 255))
+    {
+        return true; // Wall present
+    }
+    return false; // No wall
 }
 
 void move_player(Player *player, float x_delta, float y_delta)
