@@ -34,6 +34,11 @@ void display_ui()
     st7735_draw_string(10, 10, time_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
 }
 
+bool wall_at(int x, int y)
+{
+    return false;
+}
+
 void move_player(Player *player, float x_delta, float y_delta)
 {
     int next_x = player->x - (int)(x_delta * 5);
@@ -44,10 +49,32 @@ void move_player(Player *player, float x_delta, float y_delta)
         return; // Out of bounds
     }
 
+    if (wall_at(next_x, next_y))
+    {
+        return; // Collision with wall
+    }
+
     st7735_fill_rect(player->x, player->y, 10, 10, st7735_rgb(0, 0, 0));
     player->x = next_x;
     player->y = next_y;
     st7735_fill_rect(player->x, player->y, 10, 10, st7735_rgb(0, 255, 0));
+}
+
+void drawWall(int x, int y, int w, int h)
+{
+    st7735_fill_rect(x, y, w, h, st7735_rgb(255, 255, 255));
+}
+
+void draw_random_walls()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        int x = rand() % 118;
+        int y = rand() % 128 + 20;
+        int w = (rand() % 20) + 5;
+        int h = (rand() % 20) + 5;
+        drawWall(x, y, w, h);
+    }
 }
 
 void game_run(Game *game)
@@ -65,6 +92,13 @@ void game_run(Game *game)
     printf("Spiel gestartet in Level %d\n", game->current_level.level_id);
 
     st7735_fill_screen(st7735_rgb(0, 0, 0));
+
+    drawWall(0, 0, 128, 5);   // Top wall
+    drawWall(0, 155, 128, 5); // Bottom wall
+    drawWall(0, 0, 5, 160);   // Left wall
+    drawWall(123, 0, 5, 160); // Right wall
+
+    draw_random_walls();
 
     while (true)
     {
