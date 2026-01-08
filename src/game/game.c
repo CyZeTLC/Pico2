@@ -113,6 +113,8 @@ void game_run(Game *game)
 
         joystick_read(&event);
 
+        printf("Joystick X: %.2f, Y: %.2f, Button: %d\n", event.x_norm, event.y_norm, event.button_pressed);
+
         if (event.button_pressed)
         {
             st7735_fill_rect(game->player.x, game->player.y, 10, 10, st7735_rgb(0, 0, 0));
