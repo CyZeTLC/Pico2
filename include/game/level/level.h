@@ -1,6 +1,9 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#include <stdbool.h>
+#include <stddef.h>
+
 #define DISPLAY_WIDTH (128)
 #define DISPLAY_HEIGHT (160)
 
@@ -21,6 +24,7 @@ typedef struct
 } Level;
 
 void level_load(Level *l, int id);
+bool level_wall_at_pixel_pos(Level *l, size_t x, size_t y);
 
 void display_level(const Level *l);
 

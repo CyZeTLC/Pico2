@@ -1,6 +1,15 @@
 #include "include/game/level/level.h"
 #include "hal/displays/st7735.h"
 #include <stdio.h>
+#include <stdlib.h>
+
+bool level_wall_at_pixel_pos(Level *l, size_t x, size_t y)
+{
+    size_t tile_x = (x - LEVEL_BORDER_HORIZONTAL) / TILE_SIZE;
+    size_t tile_y = (y - LEVEL_BORDER_VERTICAL) / TILE_SIZE;
+    return l->map_data[tile_x][tile_y] == 'W';
+}
+
 
 // converts linear index to x coordinate
 #define continuous_to_x(idx) (idx % MAP_SIZE_HORIZONTAL)
