@@ -1,6 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#define PLAYER_SIZE (10)
+
 typedef struct
 {
     int x, y;
