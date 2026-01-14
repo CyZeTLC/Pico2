@@ -15,6 +15,9 @@ static void drawWall(int x, int y, int width, int height)
     st7735_fill_rect(x, y, width, height, st7735_rgb(255, 255, 255));
 }
 
+// uncomment code for printing maze on stdout
+//#define LEVEL_DISPLAY_STDOUT
+
 void display_level(const Level *l)
 {
     // Top wall
@@ -28,13 +31,26 @@ void display_level(const Level *l)
 
     printf("Level ID: %d\n", l->level_id);
 
-    for (int y = 0; y < MAP_SIZE_VERTICAL; y++)
-    {
-        for (int x = 0; x < MAP_SIZE_HORIZONTAL; x++)
-        {
-            char current_tile = l->map_data[y][x];
+#ifdef LEVEL_DISPLAY_STDOUT
+    for (int x = 0; x < MAP_SIZE_HORIZONTAL + 2; x++)
+        putchar('#');
+    putchar('\n');
+#endif
 
-            switch (l->map_data[y][x])
+    for (int y = 0; y < MAP_SIZE_VERTICAL; y++) {
+
+#ifdef LEVEL_DISPLAY_STDOUT
+        putchar('#');
+#endif
+
+        for (int x = 0; x < MAP_SIZE_HORIZONTAL; x++) {
+            char current_tile = l->map_data[x][y];
+
+#ifdef LEVEL_DISPLAY_STDOUT
+            putchar(current_tile != 'W' ? current_tile : '#');
+#endif
+
+            switch (current_tile)
             {
             case 'S':
                 // st7735_fill_rect(x, y, TILE_SIZE, TILE_SIZE, st7735_rgb(0, 255, 0));
@@ -54,5 +70,15 @@ void display_level(const Level *l)
                 break;
             }
         }
+
+#ifdef LEVEL_DISPLAY_STDOUT
+        puts("#");
+#endif
     }
+
+#ifdef LEVEL_DISPLAY_STDOUT
+    for (int x = 0; x < MAP_SIZE_HORIZONTAL + 2; x++)
+        putchar('#');
+    putchar('\n');
+#endif
 }
