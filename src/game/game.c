@@ -75,7 +75,6 @@ void game_run(Game *game)
     joystick_init_simple_center();
     joystick_event_t event;
 
-    Level *level1 = malloc(sizeof(Level));
     level_load(&game->current_level, 1);
     player_init(&game->player, "Hero", 60, 60);
 
