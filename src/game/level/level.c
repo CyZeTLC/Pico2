@@ -1,19 +1,172 @@
 #include "include/game/level/level.h"
 #include "hal/displays/st7735.h"
 #include <stdio.h>
+#include <stddef.h>
+#include <inttypes.h>
+#include <stdlib.h>
+
+
+bool level_wall_at_pixel_pos(Level *l, size_t x, size_t y)
+{
+    size_t tile_x = (x - LEVEL_BORDER_HORIZONTAL) / TILE_SIZE;
+    size_t tile_y = (y - LEVEL_BORDER_VERTICAL) / TILE_SIZE;
+    return l->map_data[tile_x][tile_y] == 'W';
+}
+
+
+// converts linear index to x coordinate
+#define continuous_to_x(idx) (idx % MAP_SIZE_HORIZONTAL)
+
+// converts linear index to y coordinate
+#define continuous_to_y(idx) (idx / MAP_SIZE_HORIZONTAL)
+
+//converts xy-coordinates to linear index
+#define xy_to_continuous(x, y) (y * MAP_SIZE_HORIZONTAL + x)
+
+static void try_adding_wall(Level *l, uint16_t *wall_list, size_t *wall_list_size, size_t x_neighbour, size_t y_neighbour)
+{
+    // check wether coordinate is wall
+    if (l->map_data[x_neighbour][y_neighbour] != 'W')
+        return;
+
+    uint16_t idx_neighbour = xy_to_continuous(x_neighbour, y_neighbour);
+
+    // only continue if coordinate is not already in wall_list
+    for (size_t i = 0; i < *wall_list_size; i++) {
+        if (wall_list[i] == idx_neighbour)
+            return;
+    }
+
+    wall_list[*wall_list_size] = idx_neighbour;
+    *wall_list_size = *wall_list_size + 1;
+}
+
+// add neighbouring cells to wall_list - if they are walls
+static void add_unvisited_neighbour_cells(Level *l, uint16_t *wall_list, size_t *wall_list_size, size_t x_coordinate, size_t y_coordinate)
+{
+    if (x_coordinate > 1)
+        try_adding_wall(l, wall_list, wall_list_size, x_coordinate - 2, y_coordinate);
+    if (y_coordinate > 1)
+        try_adding_wall(l, wall_list, wall_list_size, x_coordinate, y_coordinate - 2);
+    if (x_coordinate < MAP_SIZE_HORIZONTAL - 2)
+        try_adding_wall(l, wall_list, wall_list_size, x_coordinate + 2, y_coordinate);
+    if (y_coordinate < MAP_SIZE_VERTICAL - 2)
+        try_adding_wall(l, wall_list, wall_list_size, x_coordinate, y_coordinate + 2);
+}
+
+static void expand_in_random_direction(Level *l, uint16_t *wall_list, size_t *wall_list_size, size_t x_coordinate, size_t y_coordinate)
+{
+    // we're adjacent to the mace.
+    // there might be more than one way to attach to it.
+
+    // count possible directions to go
+    size_t c = 0;
+    // track possible directions for attaching
+    char dirs[4];
+
+    if (x_coordinate > 1
+        && l->map_data[x_coordinate - 2][y_coordinate] != 'W')
+        dirs[c++] = 'l';
+    if (y_coordinate > 1
+        && l->map_data[x_coordinate][y_coordinate - 2] != 'W')
+        dirs[c++] = 'u';
+    if (x_coordinate < MAP_SIZE_HORIZONTAL - 2
+        && l->map_data[x_coordinate + 2][y_coordinate] != 'W')
+        dirs[c++] = 'r';
+    if (y_coordinate < MAP_SIZE_VERTICAL - 2
+        && l->map_data[x_coordinate][y_coordinate + 2] != 'W')
+        dirs[c++] = 'd';
+
+    if (c == 0) {
+        // this shouldn't happen
+        printf("got 0 dirs for %02zu/%02zu", x_coordinate, y_coordinate);
+        return;
+    }
+
+    char dir = dirs[rand() % c];
+
+    // add the cell itself to the maze
+    l->map_data[x_coordinate][y_coordinate] = ' ';
+
+    add_unvisited_neighbour_cells(l, wall_list, wall_list_size, x_coordinate, y_coordinate);
+
+    // connect the cell by removing the wall between it and the existing maze
+    switch (dir) {
+    case 'l':
+        l->map_data[x_coordinate - 1][y_coordinate] = ' '; 
+        break;
+    case 'u':
+        l->map_data[x_coordinate][y_coordinate - 1] = ' '; 
+        break;
+    case 'r':
+        l->map_data[x_coordinate + 1][y_coordinate] = ' '; 
+        break;
+    case 'd':
+        l->map_data[x_coordinate][y_coordinate + 1] = ' '; 
+        break;
+    default:
+        return;
+    }
+}
 
 void level_load(Level *l, int id)
 {
     l->level_id = id;
-    // TODO
-    l->map_data[20][30] = 'S'; // Startpunkt
-    l->map_data[99][99] = 'E'; // Endpunkt
+    
+    // prim's algorithm is concerned with connecting all cells.
+    // every other tile is a cell. all cells become part of the maze.
+    // each time a cell is added (still surrounded by walls),
+    // a random neighbouring wall is removed to connect it.
+
+    // Start with a grid full of walls
+    for (size_t x = 0; x < MAP_SIZE_HORIZONTAL; x++){
+        for (size_t y = 0; y < MAP_SIZE_VERTICAL; y++) {
+            l->map_data[x][y] = 'W';
+        }
+    }
+
+    // wall_list contains all cells adjacent to the maze.
+    // contains tile indeces, numbered line-wise, left-to-right, downwards (0-129).
+    uint16_t wall_list[MAP_SIZE_HORIZONTAL * MAP_SIZE_VERTICAL];
+ 
+    // Pick a cell, mark it as part of the maze.
+    size_t start_x = (rand() % (MAP_SIZE_HORIZONTAL / 2)) * 2;
+    size_t start_y = (rand() % (MAP_SIZE_VERTICAL / 2)) * 2;
+    l->map_data[start_x][start_y] = ' ';
+
+    size_t wall_list_size = 1;
+    wall_list[0] = xy_to_continuous(start_x, start_y);
+
+    // Add the walls of the cell to the wall list.
+    add_unvisited_neighbour_cells(l, wall_list, &wall_list_size, start_x, start_y);
+
+    printf("wall_list_size: %zu\n", wall_list_size);
+    // While there are walls in the list
+    while (wall_list_size > 0){
+        // Pick a random wall and remove
+        size_t rand_idx = rand() % wall_list_size;
+        uint16_t w = wall_list[rand_idx];
+            
+        if (rand_idx != wall_list_size - 1)
+            wall_list[rand_idx] = wall_list[wall_list_size - 1];
+        wall_list_size--;
+
+        size_t x = continuous_to_x(w);
+        size_t y = continuous_to_y(w);
+
+        expand_in_random_direction(l, wall_list, &wall_list_size, x, y);
+    }
+
+    // TODO add player and goal
 }
 
 static void drawWall(int x, int y, int width, int height)
 {
     st7735_fill_rect(x, y, width, height, st7735_rgb(255, 255, 255));
 }
+
+// uncomment code for printing maze on stdout
+//#define LEVEL_DISPLAY_STDOUT
 
 void display_level(const Level *l)
 {
@@ -28,13 +181,26 @@ void display_level(const Level *l)
 
     printf("Level ID: %d\n", l->level_id);
 
-    for (int y = 0; y < MAP_SIZE_VERTICAL; y++)
-    {
-        for (int x = 0; x < MAP_SIZE_HORIZONTAL; x++)
-        {
-            char current_tile = l->map_data[y][x];
+#ifdef LEVEL_DISPLAY_STDOUT
+    for (int x = 0; x < MAP_SIZE_HORIZONTAL + 2; x++)
+        putchar('#');
+    putchar('\n');
+#endif
 
-            switch (l->map_data[y][x])
+    for (int y = 0; y < MAP_SIZE_VERTICAL; y++) {
+
+#ifdef LEVEL_DISPLAY_STDOUT
+        putchar('#');
+#endif
+
+        for (int x = 0; x < MAP_SIZE_HORIZONTAL; x++) {
+            char current_tile = l->map_data[x][y];
+
+#ifdef LEVEL_DISPLAY_STDOUT
+            putchar(current_tile != 'W' ? current_tile : '#');
+#endif
+
+            switch (current_tile)
             {
             case 'S':
                 // st7735_fill_rect(x, y, TILE_SIZE, TILE_SIZE, st7735_rgb(0, 255, 0));
@@ -54,5 +220,15 @@ void display_level(const Level *l)
                 break;
             }
         }
+
+#ifdef LEVEL_DISPLAY_STDOUT
+        puts("#");
+#endif
     }
+
+#ifdef LEVEL_DISPLAY_STDOUT
+    for (int x = 0; x < MAP_SIZE_HORIZONTAL + 2; x++)
+        putchar('#');
+    putchar('\n');
+#endif
 }

@@ -26,6 +26,7 @@ int main()
 
     Game *game = malloc(sizeof(Game));
     game_run(game);
+    free(game);
 
     return 0;
 }

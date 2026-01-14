@@ -18,6 +18,6 @@ void display_ui();
 
 void game_init_display();
 
-void move_player(Player *player, float x_delta, float y_delta);
+void move_player(Level *l, Player *player, float x_delta, float y_delta);
 
 #endif

@@ -34,18 +34,7 @@ void display_ui()
     st7735_draw_string(10, 10, time_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
 }
 
-bool wall_at(int x, int y)
-{
-    uint16_t color;
-
-    if (color == st7735_rgb(255, 255, 255))
-    {
-        return true; // Wall present
-    }
-    return false; // No wall
-}
-
-void move_player(Player *player, float x_delta, float y_delta)
+void move_player(Level *level, Player *player, float x_delta, float y_delta)
 {
     unsigned rightmost = DISPLAY_WIDTH - LEVEL_BORDER_HORIZONTAL - PLAYER_SIZE;
 
@@ -65,7 +54,9 @@ void move_player(Player *player, float x_delta, float y_delta)
     else if (next_y > bottommost)
         next_y = bottommost;
 
-    if (wall_at(next_x, next_y))
+    if (level_wall_at_pixel_pos(level,
+        // use the point in middle of the player for collisions
+        (size_t) next_x + PLAYER_SIZE / 2, (size_t) next_y + PLAYER_SIZE / 2))
     {
         return; // Collision with wall
     }
@@ -84,7 +75,6 @@ void game_run(Game *game)
     joystick_init_simple_center();
     joystick_event_t event;
 
-    Level *level1 = malloc(sizeof(Level));
     level_load(&game->current_level, 1);
     player_init(&game->player, "Hero", 60, 60);
 
@@ -107,7 +97,7 @@ void game_run(Game *game)
         }
         else
         {
-            move_player(&game->player, event.x_norm, event.y_norm);
+            move_player(&game->current_level, &game->player, event.x_norm, event.y_norm);
         }
 
         char location_str[10];
