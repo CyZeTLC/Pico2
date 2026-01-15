@@ -64,7 +64,7 @@ void game_run(Game *game)
         }
         else
         {
-            move_player(&game->current_level, &game->player, event.x_norm, event.y_norm);
+            player_move(&game->current_level, &game->player, event.x_norm, event.y_norm);
         }
 
         char location_str[10];

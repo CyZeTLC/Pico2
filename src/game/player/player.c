@@ -9,7 +9,7 @@ void player_init(Player *p, char *name, int startX, int startY)
     p->health = 100;
 }
 
-void move_player(Level *level, Player *player, float x_delta, float y_delta)
+void player_move(Level *level, Player *player, float x_delta, float y_delta)
 {
     unsigned rightmost = DISPLAY_WIDTH - LEVEL_BORDER_HORIZONTAL - PLAYER_SIZE;
 
