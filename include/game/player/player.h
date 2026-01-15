@@ -1,9 +1,10 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+#define MOVE_SPEED 5
 
 #include "include/game/level/level.h"
 
-#define PLAYER_SIZE (10)
+#define PLAYER_SIZE (7)
 
 typedef struct
 {

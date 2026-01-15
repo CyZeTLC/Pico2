@@ -39,20 +39,21 @@ void game_run(Game *game)
     game_init_display();
     st7735_begin();
 
+    st7735_fill_screen(st7735_rgb(0, 0, 0));
+
     joystick_init_simple_center();
     joystick_event_t event;
 
     level_load(&game->current_level, 1);
-    player_init(&game->player, "Hero", 60, 60);
+    player_init(&game->player, "Hero", 5, 10);
 
     printf("Spiel gestartet in Level %d\n", game->current_level.level_id);
 
-    st7735_fill_screen(st7735_rgb(0, 0, 0));
+    display_level(&game->current_level);
 
     while (true)
     {
-        display_ui();
-        display_level(&game->current_level);
+        // display_ui();
 
         joystick_read(&event);
 
@@ -69,7 +70,7 @@ void game_run(Game *game)
 
         char location_str[10];
         sprintf(location_str, "X: %.3f Y: %.3f", game->player.x / 1.0f, game->player.y / 1.0f);
-        st7735_draw_string(10, 20, location_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
+        // st7735_draw_string(10, 20, location_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
 
         time++;
         sleep_ms(TICK_DURATION);
