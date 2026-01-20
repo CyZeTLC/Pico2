@@ -167,6 +167,10 @@ void level_load(Level *l, int id)
     // Add the walls of the cell to the wall list.
     add_unvisited_neighbour_cells(l, wall_list, &wall_list_size, start_x, start_y);
 
+    // we want to mark the last touched cell as the end after the loop.
+    // use these outside-loop variables for that.
+    size_t cell_x, cell_y;
+
     printf("wall_list_size: %zu\n", wall_list_size);
     // While there are walls in the list
     while (wall_list_size > 0)
@@ -179,18 +183,18 @@ void level_load(Level *l, int id)
             wall_list[rand_idx] = wall_list[wall_list_size - 1];
         wall_list_size--;
 
-        size_t x = continuous_to_x(w);
-        size_t y = continuous_to_y(w);
+        cell_x = continuous_to_x(w);
+        cell_y = continuous_to_y(w);
 
-        expand_in_random_direction(l, wall_list, &wall_list_size, x, y);
+        expand_in_random_direction(l, wall_list, &wall_list_size, cell_x, cell_y);
     }
 
-    // TODO add player and goal
+    l->map_data[cell_x][cell_y] = 'E';
 }
 
 static void drawWall(int x, int y, int width, int height)
 {
-    st7735_fill_rect(x, y, width, height, st7735_rgb(255, 255, 255));
+    st7735_fill_rect(x, y, width, height, st7735_rgb(0, 0, 0));
 }
 
 // uncomment code for printing maze on stdout
@@ -215,28 +219,24 @@ void display_level(const Level *l)
         for (int x = 0; x < MAP_SIZE_HORIZONTAL; x++)
         {
             char current_tile = l->map_data[x][y];
+	    int pixel_x = LEVEL_BORDER_HORIZONTAL + x * TILE_SIZE;
+	    int pixel_y = LEVEL_BORDER_VERTICAL + y * TILE_SIZE;
 
             switch (current_tile)
             {
-            case 'S':
-                // st7735_fill_rect(x, y, TILE_SIZE, TILE_SIZE, st7735_rgb(0, 255, 0));
-                break;
-
             case 'E':
-                // st7735_fill_rect(x, y, TILE_SIZE, TILE_SIZE, st7735_rgb(255, 0, 0));
+                st7735_fill_rect(pixel_x, pixel_y, TILE_SIZE, TILE_SIZE, st7735_rgb(0, 255, 0));
                 break;
 
             case 'W': // Wand
-                // drawWall(x, y, TILE_SIZE, TILE_SIZE);
-
-                drawWall(LEVEL_BORDER_HORIZONTAL + x * TILE_SIZE,
-                         LEVEL_BORDER_VERTICAL + y * TILE_SIZE,
+                drawWall(pixel_x,
+                         pixel_y,
                          TILE_SIZE,
                          TILE_SIZE);
                 break;
 
             default:
-                // st7735_fill_rect(x, y, TILE_SIZE, TILE_SIZE, st7735_rgb(0, 0, 0));
+                st7735_fill_rect(pixel_x, pixel_y, TILE_SIZE, TILE_SIZE, st7735_rgb(255, 255, 255));
                 break;
             }
         }

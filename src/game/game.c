@@ -59,7 +59,7 @@ void game_run(Game *game)
 
         if (event.button_pressed)
         {
-            st7735_fill_rect(game->player.x, game->player.y, 10, 10, st7735_rgb(0, 0, 0));
+            st7735_fill_rect(game->player.x, game->player.y, 10, 10, st7735_rgb(255, 255, 255));
             game->player.x = 60;
             game->player.y = 60;
         }

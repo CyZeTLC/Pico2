@@ -34,8 +34,9 @@ void player_move(Level *level, Player *player, float x_delta, float y_delta)
         return; // Collision with wall
     }
 
-    st7735_fill_rect(player->x, player->y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(0, 0, 0));
+    st7735_fill_rect(player->x, player->y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(255, 255, 255));
     player->x = next_x;
     player->y = next_y;
-    st7735_fill_rect(player->x, player->y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(0, 255, 0));
+    // player colour blue
+    st7735_fill_rect(player->x, player->y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(70, 100, 250));
 }
