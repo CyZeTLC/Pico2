@@ -134,7 +134,7 @@ static void expand_in_random_direction(Level *l, uint16_t *wall_list, size_t *wa
     }
 }
 
-void level_load(Level *l, int id)
+void level_load(Level *l, int id, size_t *pixel_start_mid_x, size_t *pixel_start_mid_y)
 {
     l->level_id = id;
 
@@ -188,6 +188,9 @@ void level_load(Level *l, int id)
 
         expand_in_random_direction(l, wall_list, &wall_list_size, cell_x, cell_y);
     }
+
+    *pixel_start_mid_x = LEVEL_BORDER_HORIZONTAL + start_x * TILE_SIZE + TILE_SIZE / 2;
+    *pixel_start_mid_y = LEVEL_BORDER_VERTICAL + start_y * TILE_SIZE + TILE_SIZE / 2;
 
     l->map_data[cell_x][cell_y] = 'E';
 }
