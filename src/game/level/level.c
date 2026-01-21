@@ -6,7 +6,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
-bool level_wall_at_pixel_pos(Level *l, size_t x, size_t y)
+char level_wall_at_pixel_pos(Level *l, size_t x, size_t y)
 {
     // Check collision considering player size
     // Check the four corners of the player bounding box
@@ -24,20 +24,22 @@ bool level_wall_at_pixel_pos(Level *l, size_t x, size_t y)
 
         // Bounds check
         if (check_x < LEVEL_BORDER_HORIZONTAL || check_y < LEVEL_BORDER_VERTICAL)
-            return true;
+            return 'W';
 
         size_t tile_x = (check_x - LEVEL_BORDER_HORIZONTAL) / TILE_SIZE;
         size_t tile_y = (check_y - LEVEL_BORDER_VERTICAL) / TILE_SIZE;
 
         // Bounds check for tile indices
         if (tile_x >= MAP_SIZE_HORIZONTAL || tile_y >= MAP_SIZE_VERTICAL)
-            return true;
+            return 'W';
 
-        if (l->map_data[tile_x][tile_y] == 'W')
-            return true;
+        //return 'w' for collision with wall and 'e' for collision with end
+        char tile = l->map_data[tile_x][tile_y];
+        if (tile == 'W' || tile == 'E')
+		return tile;
     }
 
-    return false;
+    return ' ';
 }
 
 // converts linear index to x coordinate

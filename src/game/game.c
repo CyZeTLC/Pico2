@@ -76,7 +76,12 @@ void game_run(Game *game)
         }
         else
         {
-            player_move(&game->current_level, &game->player, event.x_norm, event.y_norm);
+            // if player collides with end, start new level
+            bool touched_goal = player_move(&game->current_level, &game->player, event.x_norm, event.y_norm);
+            if (touched_goal) {
+                start_level(game, game->current_level.level_id + 1, &player_start_x, &player_start_y);
+		return;
+            }
         }
 
         char location_str[10];
