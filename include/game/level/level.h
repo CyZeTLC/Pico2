@@ -23,8 +23,9 @@ typedef struct
     char map_data[MAP_SIZE_HORIZONTAL][MAP_SIZE_VERTICAL];
 } Level;
 
-void level_load(Level *l, int id);
-bool level_wall_at_pixel_pos(Level *l, size_t x, size_t y);
+void level_load(Level *l, int id, size_t *pixel_start_mid_x, size_t *pixel_start_mid_y);
+// returns 'W' for wall, 'E' for end, or ' ' for path
+char level_wall_at_pixel_pos(Level *l, size_t x, size_t y);
 
 void display_level(const Level *l);
 

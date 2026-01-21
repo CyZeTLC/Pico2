@@ -9,7 +9,8 @@ void player_init(Player *p, char *name, int startX, int startY)
     p->health = 100;
 }
 
-void player_move(Level *level, Player *player, float x_delta, float y_delta)
+// return true when the end is reached, false otherwise
+bool player_move(Level *level, Player *player, float x_delta, float y_delta)
 {
     unsigned rightmost = DISPLAY_WIDTH - LEVEL_BORDER_HORIZONTAL - PLAYER_SIZE;
 
@@ -29,10 +30,10 @@ void player_move(Level *level, Player *player, float x_delta, float y_delta)
     else if (next_y > bottommost)
         next_y = bottommost;
 
-    if (level_wall_at_pixel_pos(level, (size_t)next_x, (size_t)next_y))
-    {
-        return; // Collision with wall
-    }
+    char tile_at_pos = level_wall_at_pixel_pos(level, (size_t)next_x, (size_t)next_y);
+    // return here on collision with either a wall or the end
+    if (tile_at_pos != ' ')
+        return tile_at_pos == 'E';
 
     st7735_fill_rect(player->x, player->y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(255, 255, 255));
     player->x = next_x;

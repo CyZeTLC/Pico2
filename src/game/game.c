@@ -34,6 +34,17 @@ void display_ui()
     st7735_draw_string(10, 10, time_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
 }
 
+static void start_level(Game *game, int level_id, int *player_start_x, int *player_start_y)
+{
+    size_t start_mid_x, start_mid_y;
+    level_load(&game->current_level, 1, &start_mid_x, &start_mid_y);
+
+    *player_start_x = start_mid_x - PLAYER_SIZE / 2;
+    *player_start_y = start_mid_y - PLAYER_SIZE / 2;
+
+    display_level(&game->current_level);
+}
+
 void game_run(Game *game)
 {
     game_init_display();
@@ -44,12 +55,12 @@ void game_run(Game *game)
     joystick_init_simple_center();
     joystick_event_t event;
 
-    level_load(&game->current_level, 1);
-    player_init(&game->player, "Hero", 5, 10);
+    int player_start_x, player_start_y;
+    start_level(game, 1, &player_start_x, &player_start_y);
+
+    player_init(&game->player, "Hero", player_start_x, player_start_y);
 
     printf("Spiel gestartet in Level %d\n", game->current_level.level_id);
-
-    display_level(&game->current_level);
 
     while (true)
     {
@@ -59,13 +70,18 @@ void game_run(Game *game)
 
         if (event.button_pressed)
         {
-            st7735_fill_rect(game->player.x, game->player.y, 10, 10, st7735_rgb(255, 255, 255));
-            game->player.x = 60;
-            game->player.y = 60;
+            st7735_fill_rect(game->player.x, game->player.y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(255, 255, 255));
+            game->player.x = player_start_x;
+            game->player.y = player_start_y;
         }
         else
         {
-            player_move(&game->current_level, &game->player, event.x_norm, event.y_norm);
+            // if player collides with end, start new level
+            bool touched_goal = player_move(&game->current_level, &game->player, event.x_norm, event.y_norm);
+            if (touched_goal) {
+                start_level(game, game->current_level.level_id + 1, &player_start_x, &player_start_y);
+		return;
+            }
         }
 
         char location_str[10];

@@ -14,6 +14,6 @@ typedef struct
 } Player;
 
 void player_init(Player *p, char *name, int startX, int startY);
-void player_move(Level *level, Player *player, float x_delta, float y_delta);
+bool player_move(Level *level, Player *player, float x_delta, float y_delta);
 
 #endif
