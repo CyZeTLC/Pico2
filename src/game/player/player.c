@@ -31,7 +31,7 @@ bool player_move(Level *level, Player *player, float x_delta, float y_delta)
         next_y = bottommost;
 
     char tile_at_pos = level_wall_at_pixel_pos(level, (size_t)next_x, (size_t)next_y);
-    // return here on collision with either a wall or the end
+    //  return here on collision with either a wall or the end
     if (tile_at_pos != ' ')
         return tile_at_pos == 'E';
 
@@ -40,4 +40,5 @@ bool player_move(Level *level, Player *player, float x_delta, float y_delta)
     player->y = next_y;
     // player colour blue
     st7735_fill_rect(player->x, player->y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(70, 100, 250));
+    return false;
 }
