@@ -68,6 +68,9 @@ void game_run(Game *game)
 
         joystick_read(&event);
 
+        char location_str[10];
+        sprintf(location_str, "X: %.3f Y: %.3f", game->player.x / 1.0f, game->player.y / 1.0f);
+
         if (event.button_pressed)
         {
             st7735_fill_rect(game->player.x, game->player.y, PLAYER_SIZE, PLAYER_SIZE, st7735_rgb(255, 255, 255));
@@ -78,15 +81,12 @@ void game_run(Game *game)
         {
             // if player collides with end, start new level
             bool touched_goal = player_move(&game->current_level, &game->player, event.x_norm, event.y_norm);
-            if (touched_goal) {
+            if (touched_goal)
+            {
                 start_level(game, game->current_level.level_id + 1, &player_start_x, &player_start_y);
-		return;
+                // return;
             }
         }
-
-        char location_str[10];
-        sprintf(location_str, "X: %.3f Y: %.3f", game->player.x / 1.0f, game->player.y / 1.0f);
-        // st7735_draw_string(10, 20, location_str, st7735_rgb(255, 255, 255), st7735_rgb(0, 0, 0));
 
         time++;
         sleep_ms(TICK_DURATION);
