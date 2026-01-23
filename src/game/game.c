@@ -64,7 +64,7 @@ void game_run(Game *game)
 
     while (true)
     {
-        // display_ui();
+        // display_ui(); // Uncomment to show ticks
 
         joystick_read(&event);
 
@@ -84,7 +84,6 @@ void game_run(Game *game)
             if (touched_goal)
             {
                 start_level(game, game->current_level.level_id + 1, &player_start_x, &player_start_y);
-                // return;
             }
         }
 
