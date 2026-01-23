@@ -33,10 +33,10 @@ char level_wall_at_pixel_pos(Level *l, size_t x, size_t y)
         if (tile_x >= MAP_SIZE_HORIZONTAL || tile_y >= MAP_SIZE_VERTICAL)
             return 'W';
 
-        //return 'w' for collision with wall and 'e' for collision with end
+        // return 'w' for collision with wall and 'e' for collision with end
         char tile = l->map_data[tile_x][tile_y];
         if (tile == 'W' || tile == 'E')
-		return tile;
+            return tile;
     }
 
     return ' ';
@@ -85,9 +85,6 @@ static void add_unvisited_neighbour_cells(Level *l, uint16_t *wall_list, size_t 
 
 static void expand_in_random_direction(Level *l, uint16_t *wall_list, size_t *wall_list_size, size_t x_coordinate, size_t y_coordinate)
 {
-    // we're adjacent to the mace.
-    // there might be more than one way to attach to it.
-
     // count possible directions to go
     size_t c = 0;
     // track possible directions for attaching
@@ -104,7 +101,6 @@ static void expand_in_random_direction(Level *l, uint16_t *wall_list, size_t *wa
 
     if (c == 0)
     {
-        // this shouldn't happen
         printf("got 0 dirs for %02zu/%02zu", x_coordinate, y_coordinate);
         return;
     }
@@ -136,14 +132,14 @@ static void expand_in_random_direction(Level *l, uint16_t *wall_list, size_t *wa
     }
 }
 
+/* prim's algorithm is concerned with connecting all cells.
+ every other tile is a cell. all cells become part of the maze.
+ each time a cell is added (still surrounded by walls),
+ a random neighbouring wall is removed to connect it.
+*/
 void level_load(Level *l, int id, size_t *pixel_start_mid_x, size_t *pixel_start_mid_y)
 {
     l->level_id = id;
-
-    // prim's algorithm is concerned with connecting all cells.
-    // every other tile is a cell. all cells become part of the maze.
-    // each time a cell is added (still surrounded by walls),
-    // a random neighbouring wall is removed to connect it.
 
     // Start with a grid full of walls
     for (size_t x = 0; x < MAP_SIZE_HORIZONTAL; x++)
@@ -169,8 +165,7 @@ void level_load(Level *l, int id, size_t *pixel_start_mid_x, size_t *pixel_start
     // Add the walls of the cell to the wall list.
     add_unvisited_neighbour_cells(l, wall_list, &wall_list_size, start_x, start_y);
 
-    // we want to mark the last touched cell as the end after the loop.
-    // use these outside-loop variables for that.
+    // mark the last touched cell as the end after the loop.
     size_t cell_x, cell_y;
 
     printf("wall_list_size: %zu\n", wall_list_size);
@@ -202,9 +197,6 @@ static void drawWall(int x, int y, int width, int height)
     st7735_fill_rect(x, y, width, height, st7735_rgb(0, 0, 0));
 }
 
-// uncomment code for printing maze on stdout
-// #define LEVEL_DISPLAY_STDOUT
-
 void display_level(const Level *l)
 {
     // Top wall
@@ -224,8 +216,8 @@ void display_level(const Level *l)
         for (int x = 0; x < MAP_SIZE_HORIZONTAL; x++)
         {
             char current_tile = l->map_data[x][y];
-	    int pixel_x = LEVEL_BORDER_HORIZONTAL + x * TILE_SIZE;
-	    int pixel_y = LEVEL_BORDER_VERTICAL + y * TILE_SIZE;
+            int pixel_x = LEVEL_BORDER_HORIZONTAL + x * TILE_SIZE;
+            int pixel_y = LEVEL_BORDER_VERTICAL + y * TILE_SIZE;
 
             switch (current_tile)
             {
@@ -233,7 +225,7 @@ void display_level(const Level *l)
                 st7735_fill_rect(pixel_x, pixel_y, TILE_SIZE, TILE_SIZE, st7735_rgb(0, 255, 0));
                 break;
 
-            case 'W': // Wand
+            case 'W': // Wand / Wall
                 drawWall(pixel_x,
                          pixel_y,
                          TILE_SIZE,
